@@ -75,13 +75,13 @@ class auth_controller extends Controller
         if($request->hasFile('image')){
             $imageName = Str::random(40) . '.' . $request->image->getClientOriginalExtension();
             $imagePath = public_path('Image/User/Image') . '/' . $user->image;
-            if ($request->image->isValid()) {
+            if ($user->image==null) {
                 $request->image->move(public_path('Image/User/Image'), $imageName);
                 User::where('id', Auth()->user()->id)->update([
                     'name'=> $request->name,
                     'email'=> $request->email,
                     'phone'=> $request->phone,
-                    'address'=> $request->textarea,
+                    'address'=> $request->address,
                     'image'=>$imageName,
                 ]);
                 return response()->json([
@@ -91,15 +91,17 @@ class auth_controller extends Controller
             }else{
                 if(unlink(filename: $imagePath)){
                     $request->image->move(public_path('Image/User/Image'), $imageName);
-                    User::where('id', $request->id)->update([
+                    User::where('id', Auth()->user()->id)->update([
                         'name'=> $request->name,
                         'email'=> $request->email,
                         'phone'=> $request->phone,
-                        'role'=> $request->role,
-                        'address'=> $request->textarea,
+                        'address'=> $request->address,
                         'image'=>$imageName,
                     ]);
-                    return redirect()->route(route: 'user.index');
+                    return response()->json([
+                        'status'=> 'success',
+                        'message'=> 'Update user  sucessfully....'
+                    ]);
                 }
             }
         }else{
